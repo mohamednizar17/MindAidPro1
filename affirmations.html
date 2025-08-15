@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindAidPro - Daily Affirmations</title>
+        <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6fa;
+            color: #222;
+            margin: 0;
+        }
+        .container { max-width: 900px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #4f8cff; color: #fff; padding: 18px 32px; border-radius: 12px 12px 0 0; }
+        .header h1 { margin: 0; font-size: 2rem; }
+        .header-controls button { background: #fff2; color: #fff; border: none; border-radius: 6px; margin-left: 10px; padding: 8px 16px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        .header-controls button:hover { background: #fff4; }
+        .app-body { display: flex; }
+        .nav { min-width: 180px; background: #f0f4ff; padding: 24px 0 24px 0; border-radius: 0 0 0 12px; display: flex; flex-direction: column; transition: left 0.3s; position: relative; }
+        .nav-item { color: #4f8cff; text-decoration: none; padding: 12px 24px; border-radius: 0 20px 20px 0; margin-bottom: 4px; font-weight: 500; transition: background 0.2s, color 0.2s; }
+        .nav-item.active, .nav-item:hover { background: #e0eaff; color: #1a4fa0; }
+        .main-content { flex: 1; padding: 32px 40px; }
+        .tab-content h2 { margin-top: 0; }
+        /* Hamburger styles */
+        .hamburger { display: none; flex-direction: column; cursor: pointer; margin-right: 10px; }
+        .hamburger span { height: 3px; width: 28px; background: #fff; margin: 5px 0; border-radius: 2px; transition: 0.3s; }
+        @media (max-width: 700px) {
+            .container { max-width: 100vw; margin: 0; border-radius: 0; }
+            .main-content { padding: 16px 4vw; }
+            .nav { min-width: 0; padding: 8px 0; position: fixed; left: -220px; top: 0; height: 100vh; z-index: 100; background: #f0f4ff; box-shadow: 2px 0 8px #0002; border-radius: 0 16px 16px 0; width: 200px; transition: left 0.3s; }
+            .nav.open { left: 0; }
+            .hamburger { display: flex; }
+            .app-body { flex-direction: column; }
+        }
+        body.dark {
+            background: #181c24;
+            color: #e0e6f0;
+        }
+        body.dark .container { background: #232a36; color: #e0e6f0; }
+        body.dark .header { background: #1a4fa0; color: #fff; }
+        body.dark .nav { background: #232a36; }
+        body.dark .nav-item { color: #b3d1ff; }
+        body.dark .nav-item.active, body.dark .nav-item:hover { background: #1a4fa0; color: #fff; }
+        body.dark .main-content { background: #232a36; }
+        /* Additional page-specific styles will be preserved */
+    </style>
+</head>
+<body>
+    <div id="main-app" class="container">
+        <header class="header">
+            <div style="display: flex; align-items: center;">
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <h1>MindAidPro - Daily Affirmations</h1>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle">🌓</button>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+                        <nav class="nav">
+                <a href="index.html" class="nav-item">💬 AI Chat</a>
+                <a href="mood.html" class="nav-item">😊 Mood Track</a>
+                <a href="journal.html" class="nav-item">📔 Journal</a>
+                <a href="gratitude.html" class="nav-item">🙏 Gratitude</a>
+                <a href="sleep.html" class="nav-item">😴 Sleep</a>
+                <a href="goals.html" class="nav-item">🎯 Goals</a>
+                <a href="meditation.html" class="nav-item">🧘 Meditation</a>
+                <a href="affirmations.html" class="nav-item active">✨ Affirmations</a>
+                <a href="cbt.html" class="nav-item">🧠 CBT</a>
+                <a href="anxiety.html" class="nav-item">⏱️ Anxiety Timer</a>
+                <a href="emergency.html" class="nav-item">🚨 Emergency</a>
+                <a href="feedback.html" class="nav-item">💌 Feedback</a>
+                <a href="settings.html" class="nav-item">⚙️ Settings</a>
+            </nav>
+
+            <main class="main-content">
+                <div id="affirmations-tab" class="tab-content active">
+                    <h2>✨ Daily Affirmations</h2>
+                    <p>Positive affirmations can help rewire your brain for self-compassion and confidence. Start your day with these empowering messages.</p>
+                    
+                    <div class="affirmation-display-section">
+                        <div class="affirmation-card">
+                            <p id="affirmation-display">Click below to get your daily affirmation ✨</p>
+                            <button id="new-affirmation">✨ New Affirmation</button>
+                        </div>
+                    </div>
+                    
+                    <div class="affirmation-categories">
+                        <h3>Choose Your Focus</h3>
+                        <button class="affirmation-category" data-category="confidence">💪 Confidence</button>
+                        <button class="affirmation-category" data-category="peace">☮️ Inner Peace</button>
+                        <button class="affirmation-category" data-category="strength">🦋 Strength</button>
+                        <button class="affirmation-category" data-category="growth">🌱 Growth</button>
+                        <button class="affirmation-category" data-category="love">💖 Self-Love</button>
+                        <button class="affirmation-category" data-category="success">🌟 Success</button>
+                    </div>
+                    
+                    <div class="custom-affirmation-section">
+                        <h3>Create Your Own</h3>
+                        <input type="text" id="custom-affirmation-input" placeholder="Write your personal affirmation...">
+                        <button id="save-custom-affirmation">💾 Save My Affirmation</button>
+                    </div>
+                    
+                    <div id="favorite-affirmations">
+                        <h3>⭐ Your Favorite Affirmations</h3>
+                        <div id="favorites-list"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+    // Theme toggle and navigation
+    document.getElementById('theme-toggle').onclick = function() {
+        document.body.classList.toggle('dark');
+    };
+    document.getElementById('hamburger').onclick = function() {
+        document.querySelector('.nav').classList.toggle('open');
+    };
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 700) {
+            const nav = document.querySelector('.nav');
+            const hamburger = document.getElementById('hamburger');
+            if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                nav.classList.remove('open');
+            }
+        }
+    });
+
+    // Logout button (dummy)
+    document.getElementById('logout-btn').onclick = function() {
+        alert('Logout not implemented in this demo.');
+    };
+
+    // Affirmations logic
+    const display = document.getElementById('affirmation-display');
+    const newBtn = document.getElementById('new-affirmation');
+    const catBtns = document.querySelectorAll('.affirmation-category');
+    const customInput = document.getElementById('custom-affirmation-input');
+    const saveCustomBtn = document.getElementById('save-custom-affirmation');
+    const favoritesList = document.getElementById('favorites-list');
+    const API_URL = 'https://mindaidpro-backend.onrender.com/api/affirmations';
+
+    async function loadRandomAffirmation(category) {
+        try {
+            const url = category ? `${API_URL}?category=${encodeURIComponent(category)}` : API_URL;
+            const res = await fetch(url);
+            const data = await res.json();
+            display.textContent = data.affirmation || 'No affirmation found.';
+        } catch (e) {
+            display.textContent = 'Could not load affirmation.';
+        }
+    }
+
+    async function loadFavorites() {
+        try {
+            const res = await fetch(API_URL + '/favorites');
+            const data = await res.json();
+            favoritesList.innerHTML = '';
+            (data.favorites || []).slice().reverse().forEach(e => {
+                const div = document.createElement('div');
+                div.className = 'favorite-entry';
+                div.textContent = e;
+                favoritesList.appendChild(div);
+            });
+        } catch (e) {
+            favoritesList.innerHTML = '<div style="color:red">Could not load favorites.</div>';
+        }
+    }
+
+    newBtn.onclick = () => loadRandomAffirmation();
+    catBtns.forEach(btn => btn.onclick = () => loadRandomAffirmation(btn.dataset.category));
+
+    saveCustomBtn.onclick = async function() {
+        const text = customInput.value.trim();
+        if(!text) { alert('Please write your affirmation!'); return; }
+        try {
+            await fetch(API_URL + '/favorites', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ affirmation: text })
+            });
+            customInput.value = '';
+            loadFavorites();
+        } catch (e) {
+            alert('Could not save affirmation.');
+        }
+    };
+
+    // Initial load
+    loadRandomAffirmation();
+    loadFavorites();
+    </script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindAidPro - Mood Tracking</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6fa;
+            color: #222;
+            margin: 0;
+        }
+        .container { max-width: 900px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #4f8cff; color: #fff; padding: 18px 32px; border-radius: 12px 12px 0 0; }
+        .header h1 { margin: 0; font-size: 2rem; }
+        .header-controls button { background: #fff2; color: #fff; border: none; border-radius: 6px; margin-left: 10px; padding: 8px 16px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        .header-controls button:hover { background: #fff4; }
+        .app-body { display: flex; }
+        .nav { min-width: 180px; background: #f0f4ff; padding: 24px 0 24px 0; border-radius: 0 0 0 12px; display: flex; flex-direction: column; transition: left 0.3s; position: relative; }
+        .nav-item { color: #4f8cff; text-decoration: none; padding: 12px 24px; border-radius: 0 20px 20px 0; margin-bottom: 4px; font-weight: 500; transition: background 0.2s, color 0.2s; }
+        .nav-item.active, .nav-item:hover { background: #e0eaff; color: #1a4fa0; }
+        .main-content { flex: 1; padding: 32px 40px; }
+        .tab-content h2 { margin-top: 0; }
+        #mood-selector { margin-bottom: 1.2rem; }
+        .mood-btn { margin: 0 0.3rem 0.5rem 0; padding: 0.5rem 1.2rem; border: none; border-radius: 8px; background: #b3d1ff; color: #4f8cff; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        .mood-btn:hover { background: #4f8cff; color: #fff; }
+        #export-mood { background: #4f8cff; color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1.2rem; font-size: 1rem; cursor: pointer; margin-bottom: 1rem; }
+        #export-mood:hover { background: #1a4fa0; }
+        #mood-chart { display: block; margin: 1.5rem auto 0 auto; background: #f8f8ff; border-radius: 8px; box-shadow: 0 1px 4px #0001; }
+        /* Hamburger styles */
+        .hamburger { display: none; flex-direction: column; cursor: pointer; margin-right: 10px; }
+        .hamburger span { height: 3px; width: 28px; background: #fff; margin: 5px 0; border-radius: 2px; transition: 0.3s; }
+        @media (max-width: 700px) {
+            .container { max-width: 100vw; margin: 0; border-radius: 0; }
+            .main-content { padding: 16px 4vw; }
+            .nav { min-width: 0; padding: 8px 0; position: fixed; left: -220px; top: 0; height: 100vh; z-index: 100; background: #f0f4ff; box-shadow: 2px 0 8px #0002; border-radius: 0 16px 16px 0; width: 200px; transition: left 0.3s; }
+            .nav.open { left: 0; }
+            .hamburger { display: flex; }
+            .app-body { flex-direction: column; }
+        }
+        body.dark {
+            background: #181c24;
+            color: #e0e6f0;
+        }
+        body.dark .container { background: #232a36; color: #e0e6f0; }
+        body.dark .header { background: #1a4fa0; color: #fff; }
+        body.dark .nav { background: #232a36; }
+        body.dark .nav-item { color: #b3d1ff; }
+        body.dark .nav-item.active, body.dark .nav-item:hover { background: #1a4fa0; color: #fff; }
+        body.dark .main-content { background: #232a36; }
+    </style>
+</head>
+<body>
+    <div id="main-app" class="container">
+        <header class="header">
+            <div style="display: flex; align-items: center;">
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <h1>MindAidPro - Mood Tracking</h1>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle">🌓</button>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <nav class="nav">
+                <a href="index.html" class="nav-item">💬 AI Chat</a>
+                <a href="mood.html" class="nav-item active">😊 Mood Track</a>
+                <a href="journal.html" class="nav-item">📔 Journal</a>
+                <a href="gratitude.html" class="nav-item">🙏 Gratitude</a>
+                <a href="sleep.html" class="nav-item">😴 Sleep</a>
+                <a href="goals.html" class="nav-item">🎯 Goals</a>
+                <a href="meditation.html" class="nav-item">🧘 Meditation</a>
+                <a href="affirmations.html" class="nav-item">✨ Affirmations</a>
+                <a href="cbt.html" class="nav-item">🧠 CBT</a>
+                <a href="anxiety.html" class="nav-item">⏱️ Anxiety Timer</a>
+                <a href="emergency.html" class="nav-item">🚨 Emergency</a>
+                <a href="feedback.html" class="nav-item">💌 Feedback</a>
+                <a href="settings.html" class="nav-item">⚙️ Settings</a>
+            </nav>
+
+            <main class="main-content">
+                <div id="mood-tab" class="tab-content active">
+                    <h2>😊 Mood Tracking</h2>
+                    <p>Track your daily mood to identify patterns and trends</p>
+                    <div id="mood-selector">
+                        <h3>How are you feeling today?</h3>
+                        <button class="mood-btn" data-mood="terrible">😞 Terrible</button>
+                        <button class="mood-btn" data-mood="poor">😔 Poor</button>
+                        <button class="mood-btn" data-mood="neutral">😐 Neutral</button>
+                        <button class="mood-btn" data-mood="good">😊 Good</button>
+                        <button class="mood-btn" data-mood="excellent">😄 Excellent</button>
+                    </div>
+                    <button id="export-mood">📥 Export Data</button>
+                    <h3>Mood Trends</h3>
+                    <canvas id="mood-chart" width="400" height="200"></canvas>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Theme toggle and navigation
+        document.getElementById('theme-toggle').onclick = function() {
+            document.body.classList.toggle('dark');
+        };
+        document.getElementById('hamburger').onclick = function() {
+            document.querySelector('.nav').classList.toggle('open');
+        };
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 700) {
+                const nav = document.querySelector('.nav');
+                const hamburger = document.getElementById('hamburger');
+                if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                    nav.classList.remove('open');
+                }
+            }
+        });
+
+        // Mood tracking
+        const moodBtns = document.querySelectorAll('.mood-btn');
+        const moodChartEl = document.getElementById('mood-chart');
+        let moodData = JSON.parse(localStorage.getItem('moodData') || '[]');
+        moodBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mood = btn.getAttribute('data-mood');
+                const today = new Date().toISOString().slice(0, 10);
+                moodData.push({ date: today, mood });
+                localStorage.setItem('moodData', JSON.stringify(moodData));
+                renderChart();
+            });
+        });
+        function renderChart() {
+            if (!moodChartEl) return;
+            const ctx = moodChartEl.getContext('2d');
+            const dates = moodData.map(d => d.date);
+            const moods = moodData.map(d => d.mood);
+            const moodMap = { terrible: 1, poor: 2, neutral: 3, good: 4, excellent: 5 };
+            const moodVals = moods.map(m => moodMap[m] || 3);
+            if (window.moodChart) window.moodChart.destroy();
+            window.moodChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Mood',
+                        data: moodVals,
+                        borderColor: '#8e44ad',
+                        backgroundColor: 'rgba(142,68,173,0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    scales: { y: { min: 1, max: 5, ticks: { stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+        renderChart();
+        document.getElementById('export-mood').onclick = function() {
+            const blob = new Blob([JSON.stringify(moodData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mood-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+    </script>
+</body>
+</html>

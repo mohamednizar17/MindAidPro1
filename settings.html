@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindAidPro - Settings</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6fa;
+            color: #222;
+            margin: 0;
+        }
+        .container { max-width: 900px; margin: 30px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: #4f8cff; color: #fff; padding: 18px 32px; border-radius: 12px 12px 0 0; }
+        .header h1 { margin: 0; font-size: 2rem; }
+        .header-controls button { background: #fff2; color: #fff; border: none; border-radius: 6px; margin-left: 10px; padding: 8px 16px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        .header-controls button:hover { background: #fff4; }
+        .app-body { display: flex; }
+        .nav { min-width: 180px; background: #f0f4ff; padding: 24px 0 24px 0; border-radius: 0 0 0 12px; display: flex; flex-direction: column; }
+        .nav-item { color: #4f8cff; text-decoration: none; padding: 12px 24px; border-radius: 0 20px 20px 0; margin-bottom: 4px; font-weight: 500; transition: background 0.2s, color 0.2s; }
+        .nav-item.active, .nav-item:hover { background: #e0eaff; color: #1a4fa0; }
+        .main-content { flex: 1; padding: 32px 40px; }
+        .tab-content h2 { margin-top: 0; }
+        .settings-section { margin-bottom: 32px; background: #f8faff; padding: 18px 24px; border-radius: 8px; box-shadow: 0 1px 4px #0001; }
+        .settings-section h3 { margin-top: 0; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        select, input[type="range"], input[type="text"] { margin-bottom: 12px; padding: 6px 10px; border-radius: 4px; border: 1px solid #bbb; font-size: 1rem; width: 100%; max-width: 350px; }
+        input[type="range"] { width: 200px; }
+        button { padding: 8px 18px; border-radius: 6px; border: none; background: #4f8cff; color: #fff; font-size: 1rem; cursor: pointer; margin-right: 10px; transition: background 0.2s; }
+        button:hover { background: #1a4fa0; }
+        .danger-btn { background: #ff4f4f; }
+        .danger-btn:hover { background: #b80000; }
+        .warning-text { color: #b80000; font-weight: bold; }
+        .info-text { color: #4f8cff; font-size: 0.95em; }
+        @media (max-width: 700px) {
+            .container { max-width: 100vw; margin: 0; border-radius: 0; }
+            .main-content { padding: 16px 4vw; }
+            .nav { min-width: 0; padding: 8px 0; }
+            .settings-section { padding: 12px 6px; }
+        }
+        body.dark {
+            background: #181c24;
+            color: #e0e6f0;
+        }
+        body.dark .container { background: #232a36; color: #e0e6f0; }
+        body.dark .header { background: #1a4fa0; color: #fff; }
+        body.dark .nav { background: #232a36; }
+        body.dark .nav-item { color: #b3d1ff; }
+        body.dark .nav-item.active, body.dark .nav-item:hover { background: #1a4fa0; color: #fff; }
+        body.dark .main-content { background: #232a36; }
+        body.dark .settings-section { background: #1a2230; }
+        body.dark .info-text { color: #b3d1ff; }
+    </style>
+</head>
+</body>
+<script>
+// --- Settings Page Logic ---
+const settingsUrl = '/api/settings';
+const exportUrl = '/api/export';
+const clearUrl = '/api/clear';
+
+// Load settings from backend
+async function loadSettings() {
+    try {
+        const res = await fetch(settingsUrl);
+        if (!res.ok) throw new Error('Failed to load settings');
+        const data = await res.json();
+        document.getElementById('language-selector').value = data.language || 'english';
+        document.getElementById('crisis-sensitivity').value = data.crisisSensitivity ?? 50;
+        document.getElementById('reminder-frequency').value = data.reminderFrequency || 'none';
+        document.getElementById('openrouter-api-key').value = data.openrouterApiKey || '';
+        document.getElementById('huggingface-token').value = data.huggingfaceToken || '';
+        document.getElementById('cohere-api-key').value = data.cohereApiKey || '';
+        document.getElementById('google-ai-api-key').value = data.googleAiApiKey || '';
+        if (data.theme === 'dark') document.body.classList.add('dark');
+        else document.body.classList.remove('dark');
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// Save settings to backend
+async function saveSettings() {
+    const payload = {
+        language: document.getElementById('language-selector').value,
+        crisisSensitivity: parseInt(document.getElementById('crisis-sensitivity').value, 10),
+        reminderFrequency: document.getElementById('reminder-frequency').value,
+        openrouterApiKey: document.getElementById('openrouter-api-key').value,
+        huggingfaceToken: document.getElementById('huggingface-token').value,
+        cohereApiKey: document.getElementById('cohere-api-key').value,
+        googleAiApiKey: document.getElementById('google-ai-api-key').value,
+        theme: document.body.classList.contains('dark') ? 'dark' : 'light',
+    };
+    try {
+        const res = await fetch(settingsUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Failed to save settings');
+        alert('Settings saved!');
+    } catch (e) {
+        alert('Error saving settings.');
+    }
+}
+
+// Theme toggle
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+}
+
+// Export all data
+async function exportAllData() {
+    try {
+        const res = await fetch(exportUrl);
+        if (!res.ok) throw new Error('Failed to export data');
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mindaidpro_data.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (e) {
+        alert('Export failed.');
+    }
+}
+
+// Clear all data
+async function clearAllData() {
+    if (!confirm('Are you sure you want to clear all data? This cannot be undone!')) return;
+    try {
+        const res = await fetch(clearUrl, { method: 'POST' });
+        if (!res.ok) throw new Error('Failed to clear data');
+        alert('All data cleared.');
+        window.location.reload();
+    } catch (e) {
+        alert('Failed to clear data.');
+    }
+}
+
+// Logout (dummy, just redirect to index)
+function logout() {
+    window.location.href = 'index.html';
+}
+
+// Event listeners
+window.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    document.getElementById('save-settings').onclick = saveSettings;
+    document.getElementById('theme-toggle').onclick = toggleTheme;
+    document.getElementById('theme-toggle-settings').onclick = toggleTheme;
+    document.getElementById('logout-btn').onclick = logout;
+    document.getElementById('export-all-data').onclick = exportAllData;
+    document.getElementById('clear-all-data').onclick = clearAllData;
+});
+</script>
+</head>
+<body>
+    <div id="main-app" class="container">
+        <header class="header">
+            <h1>MindAidPro - Settings</h1>
+            <div class="header-controls">
+                <button id="theme-toggle">🌓</button>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <nav class="nav">
+                <a href="index.html" class="nav-item">💬 AI Chat</a>
+                <a href="mood.html" class="nav-item">😊 Mood Track</a>
+                <a href="journal.html" class="nav-item">📔 Journal</a>
+                <a href="gratitude.html" class="nav-item">🙏 Gratitude</a>
+                <a href="sleep.html" class="nav-item">😴 Sleep</a>
+                <a href="goals.html" class="nav-item">🎯 Goals</a>
+                <a href="stress.html" class="nav-item">📊 Stress Map</a>
+                <a href="meditation.html" class="nav-item">🧘 Meditation</a>
+                <a href="affirmations.html" class="nav-item">✨ Affirmations</a>
+                <a href="emotions.html" class="nav-item">🎭 Emotions</a>
+                <a href="cbt.html" class="nav-item">🧠 CBT</a>
+                <a href="mindfulness.html" class="nav-item">🌸 Mindfulness</a>
+                <a href="anxiety.html" class="nav-item">⏱️ Anxiety Timer</a>
+                <a href="insights.html" class="nav-item">📈 Insights</a>
+                <a href="emergency.html" class="nav-item">🚨 Emergency</a>
+                <a href="feedback.html" class="nav-item">💌 Feedback</a>
+                <a href="settings.html" class="nav-item active">⚙️ Settings</a>
+            </nav>
+
+            <main class="main-content">
+                <div id="settings-tab" class="tab-content active">
+                    <h2>⚙️ Settings</h2>
+                    
+                    <div class="settings-section">
+                        <h3>🌍 Language & Preferences</h3>
+                        <label>Language Preference:</label>
+                        <select id="language-selector">
+                            <option value="english">English</option>
+                            <option value="hinglish">Hinglish (Hindi-English Mix)</option>
+                            <option value="tanglish">Tanglish (Tamil-English Mix)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>🚨 Crisis Detection</h3>
+                        <label>Crisis Sensitivity:</label>
+                        <input type="range" id="crisis-sensitivity" min="0" max="100" value="50">
+                        <p>Higher values trigger crisis support earlier</p>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>📅 Reminders</h3>
+                        <label>Reminder Frequency:</label>
+                        <select id="reminder-frequency">
+                            <option value="none">No Reminders</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>🎨 Theme</h3>
+                        <button id="theme-toggle-settings">Toggle Dark/Light Mode</button>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>💾 Data Management</h3>
+                        <button id="export-all-data">📥 Export All Data</button>
+                        <button id="clear-all-data" class="danger-btn">🗑️ Clear All Data</button>
+                        <p class="warning-text">⚠️ Clearing data cannot be undone!</p>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>🔧 API Configuration</h3>
+                        <p>Configure your API keys for enhanced AI features (Optional)</p>
+                        <input type="text" id="openrouter-api-key" placeholder="OpenRouter API Key">
+                        <input type="text" id="huggingface-token" placeholder="Hugging Face Token">
+                        <input type="text" id="cohere-api-key" placeholder="Cohere API Key">
+                        <input type="text" id="google-ai-api-key" placeholder="Google AI API Key">
+                        <p class="info-text">ℹ️ API keys are stored locally on your device</p>
+                    </div>
+                    
+                    <button id="save-settings">💾 Save Settings</button>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
